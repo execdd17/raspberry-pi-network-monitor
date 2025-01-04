@@ -15,4 +15,4 @@ COPY speedtest.py /app/speedtest.py
 WORKDIR /app
 
 # Run the speedtest script
-CMD ["python", "speedtest.py"]
+CMD ["python", "testspeed.py"]
