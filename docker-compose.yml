@@ -1,5 +1,3 @@
-version: "3.8"
-
 networks:
   skynet:
 
@@ -65,3 +63,19 @@ services:
       INFLUXDB_BUCKET: temp-monitor-bucket
       INFLUXDB_ORG: temp-monitor-org
 
+  speedtest:
+    build: ./speedtest
+    image: speedtest:latest
+    container_name: speedtest
+    networks:
+      - skynet
+    depends_on:
+      influxdb:
+        condition: service_healthy
+    environment:
+      INFLUXDB_TOKEN: WkoTClqWxUZ_zCoUn3RZsMNVehVG8MeYFy_R9yaBUEbwmxgAxvJVdIkMdHJhVmXqoJ6jJxWAJXoA3sPWgMPxKQ==
+      INFLUXDB_BUCKET: temp-monitor-bucket
+      INFLUXDB_ORG: temp-monitor-org
+      SPEEDTEST_INTERVAL: 300        # Interval in seconds (e.g., 300s = 5 minutes)
+      INFLUXDB_URL: http://influxdb:8086
+    restart: on-failure
