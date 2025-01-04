@@ -1,0 +1,2 @@
+influxdb-client
+speedtest-cli
