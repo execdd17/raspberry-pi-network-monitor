@@ -9,7 +9,7 @@ COPY requirements.txt /app/requirements.txt
 RUN pip install --no-cache-dir -r /app/requirements.txt
 
 # Copy the speedtest script
-COPY speedtest.py /app/speedtest.py
+COPY testspeed.py /app/testspeed.py
 
 # Set working directory
 WORKDIR /app
