@@ -1,0 +1,15 @@
+apiVersion: 1
+
+datasources:
+  - name: InfluxDB-AUTOMATED
+    type: influxdb
+    access: proxy
+    url: http://influxdb:8086
+    isDefault: false
+    version: 2
+    jsonData:
+      organization: temp-monitor-org
+      defaultBucket: temp-monitor-bucket
+      fluxLanguage: true
+    secureJsonData:
+      token: WkoTClqWxUZ_zCoUn3RZsMNVehVG8MeYFy_R9yaBUEbwmxgAxvJVdIkMdHJhVmXqoJ6jJxWAJXoA3sPWgMPxKQ==
