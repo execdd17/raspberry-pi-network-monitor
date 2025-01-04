@@ -49,7 +49,7 @@ services:
     container_name: monitor
     devices:
       - /dev/gpiomem:/dev/gpiomem
-    build: .
+    build: ./monitor
     restart: on-failure
     networks:
       - skynet
