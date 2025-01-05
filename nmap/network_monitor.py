@@ -22,7 +22,7 @@ from mac_vendor_lookup import MacLookup, VendorNotFoundError
 # load_dotenv()
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 # Read environment variables with default values
@@ -178,6 +178,7 @@ def main() -> None:
 
     # Update the vendor database
     try:
+        logger.info("Updating MAC vendor database...")
         MacLookup().update_vendors()
         logger.info("Updated MAC vendor database successfully.")
     except Exception as e:
