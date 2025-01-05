@@ -108,6 +108,7 @@ class DeviceManager:
                         known=False,
                         state="up",
                     )
+                    logger.warning(f"Unknown device: {device}")
                     unknown_devices.append(device)
 
         logger.info(

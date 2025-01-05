@@ -15,11 +15,6 @@
         "vendor": "Amazon Technologies Inc."
     },
     {
-        "mac_address": "88:57:1D:73:C4:F4",
-        "ip_address": "192.168.1.103",
-        "vendor": "Seongji Industry Company"
-    },
-    {
         "mac_address": "BC:45:5B:9E:81:AA",
         "ip_address": "192.168.1.105",
         "vendor": "Samsung Electronics Co.,Ltd"
@@ -28,11 +23,6 @@
         "mac_address": "10:09:F9:97:7B:D8",
         "ip_address": "192.168.1.106",
         "vendor": "Amazon Technologies Inc."
-    },
-    {
-        "mac_address": "C4:D8:D5:93:8E:C4",
-        "ip_address": "192.168.1.107",
-        "vendor": "Espressif Inc."
     },
     {
         "mac_address": "68:DB:F5:4A:E9:7A",
@@ -45,19 +35,9 @@
         "vendor": "Amazon Technologies Inc."
     },
     {
-        "mac_address": "5E:5E:D9:C7:1F:F1",
-        "ip_address": "192.168.1.110",
-        "vendor": "Unknown"
-    },
-    {
         "mac_address": "A8:B5:7C:79:36:80",
         "ip_address": "192.168.1.111",
         "vendor": "Roku, Inc"
-    },
-    {
-        "mac_address": "0C:AE:7D:F8:B4:F1",
-        "ip_address": "192.168.1.112",
-        "vendor": "Texas Instruments"
     },
     {
         "mac_address": "8C:3B:AD:CD:78:A8",
@@ -75,26 +55,6 @@
         "vendor": "ASRock Incorporation"
     },
     {
-        "mac_address": "6E:59:19:D2:C5:BA",
-        "ip_address": "192.168.1.116",
-        "vendor": "Unknown"
-    },
-    {
-        "mac_address": "8A:4B:0A:81:E4:26",
-        "ip_address": "192.168.1.123",
-        "vendor": "Unknown"
-    },
-    {
-        "mac_address": "26:D7:13:6E:AA:00",
-        "ip_address": "192.168.1.124",
-        "vendor": "Unknown"
-    },
-    {
-        "mac_address": "00:23:A7:3C:C3:92",
-        "ip_address": "192.168.1.125",
-        "vendor": "Redpine Signals, Inc."
-    },
-    {
         "mac_address": "6C:7E:67:B9:EE:F2",
         "ip_address": "192.168.1.129",
         "vendor": "Apple, Inc."
@@ -103,11 +63,6 @@
         "mac_address": "E0:F6:B5:9B:69:0B",
         "ip_address": "192.168.1.136",
         "vendor": "Nintendo Co.,Ltd"
-    },
-    {
-        "mac_address": "A2:18:A4:AA:CE:1E",
-        "ip_address": "192.168.1.139",
-        "vendor": "Unknown"
     },
     {
         "mac_address": "B8:27:EB:01:C6:C6",
