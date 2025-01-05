@@ -16,7 +16,7 @@ from pathlib import Path
 import platform
 import sys
 
-from mac_vendor_lookup import MacLookup, VendorNotFoundError
+from mac_vendor_lookup import MacLookup, VendorNotFoundError  # Corrected import
 
 # Load environment variables from .env file
 # load_dotenv()
@@ -93,17 +93,17 @@ def scan_network(network: str = "192.168.1.0/24") -> Optional[nmap.PortScanner]:
         logger.error(f"Unexpected error during network scan: {e}")
     return None
 
-def get_vendor(mac: str) -> str:
+def get_vendor(mac: str, mac_lookup: MacLookup) -> str:
     """Retrieve the vendor/manufacturer for a given MAC address."""
     try:
-        return MacLookup().lookup(mac)
+        return mac_lookup.lookup(mac)
     except VendorNotFoundError:
         return "Unknown"
     except Exception as e:
         logger.error(f"Error retrieving vendor for MAC {mac}: {e}")
         return "Unknown"
 
-def process_scan_results(nm: nmap.PortScanner, known_devices: List[Device]) -> Tuple[List[Device], List[Device]]:
+def process_scan_results(nm: nmap.PortScanner, known_devices: List[Device], mac_lookup: MacLookup) -> Tuple[List[Device], List[Device]]:
     """Process scan results to identify connected and unknown devices."""
     connected_devices: List[Device] = []
     unknown_devices: List[Device] = []
@@ -120,7 +120,7 @@ def process_scan_results(nm: nmap.PortScanner, known_devices: List[Device]) -> T
                 logger.debug(f"Host {host} is up but MAC address is unknown.")
                 continue  # Skip hosts without MAC addresses
 
-            vendor: str = get_vendor(mac)
+            vendor: str = get_vendor(mac, mac_lookup)
 
             if mac in known_mac_dict:
                 device = known_mac_dict[mac]
@@ -176,10 +176,13 @@ def main() -> None:
         logger.error("Please rerun the script with elevated privileges (e.g., using sudo).")
         sys.exit(1)
 
+    # Instantiate MacLookup once
+    mac_lookup = MacLookup()
+
     # Update the vendor database
     try:
         logger.info("Updating MAC vendor database...")
-        MacLookup().update_vendors()
+        mac_lookup.update_vendors()
         logger.info("Updated MAC vendor database successfully.")
     except Exception as e:
         logger.error(f"Error updating MAC vendor database: {e}")
@@ -192,7 +195,7 @@ def main() -> None:
     while True:
         nm: Optional[nmap.PortScanner] = scan_network()
         if nm:
-            connected, unknown = process_scan_results(nm, known_devices)
+            connected, unknown = process_scan_results(nm, known_devices, mac_lookup)
             write_to_influxdb(connected, unknown)
         else:
             logger.error("Network scan failed. Skipping this interval.")
