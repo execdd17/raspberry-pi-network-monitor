@@ -1,2 +1,3 @@
 python-nmap 
 influxdb-client
+mac-vendor-lookup
