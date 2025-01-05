@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Optional
 
 @dataclass
 class Device:
@@ -8,3 +9,4 @@ class Device:
     hostname: str
     state: str
     known: bool
+    vendor: Optional[str] = None

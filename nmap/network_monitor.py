@@ -131,12 +131,17 @@ def process_scan_results(nm: nmap.PortScanner, known_devices: List[Device]) -> T
         if nm[host].state() == "up":
             mac: str = nm[host]['addresses'].get('mac', 'UNKNOWN').upper()
             hostname: str = nm[host]['hostnames'][0]['name'] if nm[host]['hostnames'] else 'Unknown'
+            vendor: Optional[str] = None
 
             if mac == 'UNKNOWN':
                 # Attempt to retrieve MAC address from ARP table as a fallback
                 mac = get_mac_from_arp(host)
                 if not mac:
                     mac = 'UNKNOWN'
+
+            if mac != 'UNKNOWN':
+                # Attempt to get the vendor/manufacturer information from nmap's scan
+                vendor = nm[host]['vendor'].get(mac, 'Unknown')
 
             if mac == 'UNKNOWN':
                 # Devices without a MAC address are flagged as unknown
@@ -146,7 +151,8 @@ def process_scan_results(nm: nmap.PortScanner, known_devices: List[Device]) -> T
                     device_type="Unknown",
                     hostname=hostname,
                     state="up",
-                    known=False
+                    known=False,
+                    vendor=vendor
                 )
                 unknown_devices.append(unknown_device)
                 continue
@@ -158,6 +164,7 @@ def process_scan_results(nm: nmap.PortScanner, known_devices: List[Device]) -> T
                 # Update known device's hostname and state
                 known_device.hostname = hostname
                 known_device.state = "up"
+                known_device.vendor = vendor
                 connected_devices.append(known_device)
             else:
                 # Device is not in known devices list
@@ -167,8 +174,10 @@ def process_scan_results(nm: nmap.PortScanner, known_devices: List[Device]) -> T
                     device_type="Unknown",
                     hostname=hostname,
                     state="up",
-                    known=False
+                    known=False,
+                    vendor=vendor
                 )
+                logger.info(f"Unknown device: {unknown_device}")
                 unknown_devices.append(unknown_device)
 
     logger.info(f"Connected devices: {len(connected_devices)}, Unknown devices: {len(unknown_devices)}")
@@ -186,7 +195,8 @@ def write_to_influxdb(connected: List[Device], unknown: List[Device]) -> None:
             .tag("state", device.state) \
             .field("hostname", device.hostname) \
             .field("mac_address", device.mac_address) \
-            .field("known", device.known)
+            .field("known", device.known) \
+            .field("vendor", device.vendor if device.vendor else "Unknown")
         points.append(point)
 
     # Add unknown devices
@@ -197,7 +207,8 @@ def write_to_influxdb(connected: List[Device], unknown: List[Device]) -> None:
             .tag("state", device.state) \
             .field("hostname", device.hostname) \
             .field("mac_address", device.mac_address) \
-            .field("known", device.known)
+            .field("known", device.known) \
+            .field("vendor", device.vendor if device.vendor else "Unknown")
         points.append(point)
 
     try:
@@ -205,6 +216,16 @@ def write_to_influxdb(connected: List[Device], unknown: List[Device]) -> None:
         logger.info(f"Wrote {len(points)} points to InfluxDB.")
     except Exception as e:
         logger.error(f"Error writing to InfluxDB: {e}")
+
+def ping_sweep(network: str = "192.168.1.0/24") -> None:
+    """Ping all IP addresses in the specified subnet to populate the ARP table."""
+    logger.info(f"Starting ping sweep on {network}")
+    try:
+        # Use nmap to perform a ping sweep
+        subprocess.run(["nmap", "-sn", network], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        logger.info("Ping sweep complete.")
+    except subprocess.CalledProcessError as e:
+        logger.error(f"Error during ping sweep: {e}")
 
 def main() -> None:
     """Main loop to perform network scans and write data to InfluxDB."""
@@ -219,6 +240,9 @@ def main() -> None:
         return
 
     while True:
+        # Perform ping sweep to ensure ARP table is populated
+        #ping_sweep(network="192.168.1.0/24")
+
         nm: Optional[nmap.PortScanner] = scan_network()
         if nm:
             connected, unknown = process_scan_results(nm, known_devices)
