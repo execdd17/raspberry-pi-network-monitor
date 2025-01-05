@@ -1,3 +1,10 @@
+## What is this project?
+
+The idea of this code is to:
+1. Capture Raspberry Pi thermal data
+2. Capture Internet download speed, upload speed, and ping latency
+3. Visualize the data within Grafana backed by InfluxDB
+
 ### Grafana Provisioning
 #### InfluxDB Data Source
 I automated the Grafana InfluxDB data source. It is using the Flux query language. I'm not a big fan of that query language but the original project was using it so I just went along with it.
