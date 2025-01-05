@@ -102,7 +102,7 @@ services:
 
     # Optional: Some nmap features require direct access to the host's network stack.
     # If you need that, uncomment the line below. But you lose container isolation.
-    network_mode: "host"
+    # network_mode: "host"
     
     # Or some setups may need privileged mode for raw packet scanning:
     privileged: true
