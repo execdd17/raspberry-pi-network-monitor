@@ -8,13 +8,19 @@ import nmap
 import influxdb_client
 from influxdb_client import Point
 from influxdb_client.client.write_api import SYNCHRONOUS
-from pathlib import Path
 
-# from dotenv import load_dotenv
+from dotenv import load_dotenv
 from device import Device  # Import the Device data class
 
+from pathlib import Path
+import subprocess
+import platform
+import re
+import sys
+import ctypes
+
 # Load environment variables from .env file
-# load_dotenv()
+load_dotenv()
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -27,6 +33,8 @@ token: str = os.environ.get("INFLUXDB_TOKEN", "your_influxdb_token")
 url: str = os.environ.get("INFLUXDB_URL", "http://influxdb:8086")
 interval: int = int(os.environ.get("NETWORK_SCAN_INTERVAL", "300"))  # Default to 300 seconds (5 minutes)
 known_devices_file: str = os.environ.get("KNOWN_DEVICES_FILE", "known_devices.json")
+
+# Determine the absolute path to known_devices.json based on the script's location
 script_dir: Path = Path(__file__).parent.resolve()
 known_devices_path: Path = script_dir / known_devices_file
 
@@ -34,10 +42,22 @@ known_devices_path: Path = script_dir / known_devices_file
 client = influxdb_client.InfluxDBClient(url=url, token=token, org=org)
 write_api = client.write_api(write_options=SYNCHRONOUS)
 
-def load_known_devices(file_path: str) -> List[Device]:
+def is_admin() -> bool:
+    """Check if the script is running with administrative/root privileges."""
+    system = platform.system()
+    try:
+        if system == "Windows":
+            return ctypes.windll.shell32.IsUserAnAdmin()
+        else:
+            return os.geteuid() == 0
+    except Exception as e:
+        logger.error(f"Error checking administrative privileges: {e}")
+        return False
+
+def load_known_devices(file_path: Path) -> List[Device]:
     """Load known devices from a JSON file and return a list of Device instances."""
     try:
-        with open(file_path, 'r') as f:
+        with file_path.open('r') as f:
             devices_json = json.load(f)
         logger.info(f"Loaded {len(devices_json)} known devices from {file_path}.")
 
@@ -78,6 +98,30 @@ def scan_network(network: str = "192.168.1.0/24") -> Optional[nmap.PortScanner]:
         logger.error(f"Unexpected error during network scan: {e}")
     return None
 
+def get_mac_from_arp(ip: str) -> Optional[str]:
+    """Retrieve the MAC address for a given IP from the ARP table."""
+    system = platform.system()
+    try:
+        if system == "Windows":
+            # Run 'arp -a <ip>' and parse the output
+            output = subprocess.check_output(["arp", "-a", ip], text=True)
+            match = re.search(r"([\da-fA-F]{2}[:-]){5}[\da-fA-F]{2}", output)
+            if match:
+                return match.group(0).upper()
+        elif system in ("Linux", "Darwin"):
+            # Run 'arp -n <ip>' and parse the output
+            output = subprocess.check_output(["arp", "-n", ip], text=True)
+            match = re.search(r"([\da-fA-F]{2}[:-]){5}[\da-fA-F]{2}", output)
+            if match:
+                return match.group(0).upper()
+        else:
+            logger.warning(f"Unsupported OS for ARP parsing: {system}")
+    except subprocess.CalledProcessError as e:
+        logger.error(f"Error retrieving ARP entry for {ip}: {e}")
+    except Exception as e:
+        logger.error(f"Unexpected error retrieving ARP entry for {ip}: {e}")
+    return None
+
 def process_scan_results(nm: nmap.PortScanner, known_devices: List[Device]) -> Tuple[List[Device], List[Device]]:
     """Process scan results to identify connected and unknown devices."""
     connected_devices: List[Device] = []
@@ -87,6 +131,12 @@ def process_scan_results(nm: nmap.PortScanner, known_devices: List[Device]) -> T
         if nm[host].state() == "up":
             mac: str = nm[host]['addresses'].get('mac', 'UNKNOWN').upper()
             hostname: str = nm[host]['hostnames'][0]['name'] if nm[host]['hostnames'] else 'Unknown'
+
+            if mac == 'UNKNOWN':
+                # Attempt to retrieve MAC address from ARP table as a fallback
+                mac = get_mac_from_arp(host)
+                if not mac:
+                    mac = 'UNKNOWN'
 
             if mac == 'UNKNOWN':
                 # Devices without a MAC address are flagged as unknown
@@ -158,6 +208,11 @@ def write_to_influxdb(connected: List[Device], unknown: List[Device]) -> None:
 
 def main() -> None:
     """Main loop to perform network scans and write data to InfluxDB."""
+    if not is_admin():
+        logger.error("This script requires administrative/root privileges to run correctly.")
+        logger.error("Please rerun the script with elevated privileges (e.g., using sudo).")
+        sys.exit(1)
+
     known_devices: List[Device] = load_known_devices(known_devices_path)
     if not known_devices:
         logger.error("No known devices loaded. Exiting.")
