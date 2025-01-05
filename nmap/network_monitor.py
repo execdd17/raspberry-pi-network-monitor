@@ -2,6 +2,7 @@ import os
 import time
 import json
 import logging
+import socket
 from typing import List, Tuple, Optional
 
 import nmap
@@ -9,7 +10,7 @@ import influxdb_client
 from influxdb_client import Point
 from influxdb_client.client.write_api import SYNCHRONOUS
 
-from dotenv import load_dotenv
+# from dotenv import load_dotenv
 from device import Device  # Import the Device data class
 
 from pathlib import Path
@@ -20,7 +21,7 @@ import sys
 import ctypes
 
 # Load environment variables from .env file
-load_dotenv()
+# load_dotenv()
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -41,6 +42,17 @@ known_devices_path: Path = script_dir / known_devices_file
 # Initialize InfluxDB client
 client = influxdb_client.InfluxDBClient(url=url, token=token, org=org)
 write_api = client.write_api(write_options=SYNCHRONOUS)
+
+def get_hostname(ip: str) -> str:
+    """Perform a reverse DNS lookup to get the hostname for a given IP."""
+    try:
+        hostname = socket.gethostbyaddr(ip)[0]
+        return hostname
+    except socket.herror:
+        return "Unknown"
+    except Exception as e:
+        logger.error(f"Error performing reverse DNS for {ip}: {e}")
+        return "Unknown"
 
 def is_admin() -> bool:
     """Check if the script is running with administrative/root privileges."""
@@ -130,7 +142,7 @@ def process_scan_results(nm: nmap.PortScanner, known_devices: List[Device]) -> T
     for host in nm.all_hosts():
         if nm[host].state() == "up":
             mac: str = nm[host]['addresses'].get('mac', 'UNKNOWN').upper()
-            hostname: str = nm[host]['hostnames'][0]['name'] if nm[host]['hostnames'] else 'Unknown'
+            hostname: str = nm[host]['hostnames'][0]['name'] if nm[host]['hostnames'] else get_hostname(host)
             vendor: Optional[str] = None
 
             if mac == 'UNKNOWN':
@@ -182,6 +194,7 @@ def process_scan_results(nm: nmap.PortScanner, known_devices: List[Device]) -> T
 
     logger.info(f"Connected devices: {len(connected_devices)}, Unknown devices: {len(unknown_devices)}")
     return connected_devices, unknown_devices
+
 
 def write_to_influxdb(connected: List[Device], unknown: List[Device]) -> None:
     """Write connected and unknown device data to InfluxDB."""
