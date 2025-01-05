@@ -8,6 +8,7 @@ datasources:
     isDefault: false
     basicAuth: false
     editable: true
+    uid: influxdb-raspberry-pi  # This way our Dashboards can have a stable reference
     jsonData:
       organization: temp-monitor-org
       defaultBucket: temp-monitor-bucket

@@ -74,7 +74,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "P951FEA4DE68E13C5"
+        "uid": "influxdb-raspberry-pi"
       },
       "description": "This is running the speedtest-cli python library",
       "fieldConfig": {
@@ -161,7 +161,7 @@
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "P951FEA4DE68E13C5"
+            "uid": "influxdb-raspberry-pi"
           },
           "hide": false,
           "query": "from(bucket: \"temp-monitor-bucket\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r._measurement == \"speedtest\")\r\n  |> filter(fn: (r) => r._field == \"upload\")\r\n  |> aggregateWindow(every: 1m, fn: mean, createEmpty: false)\r\n  |> yield(name: \"mean_upload\")",
@@ -174,7 +174,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "P951FEA4DE68E13C5"
+        "uid": "influxdb-raspberry-pi"
       },
       "fieldConfig": {
         "defaults": {
@@ -289,7 +289,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "P951FEA4DE68E13C5"
+        "uid": "influxdb-raspberry-pi"
       },
       "description": "",
       "fieldConfig": {
@@ -357,7 +357,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "P951FEA4DE68E13C5"
+        "uid": "influxdb-raspberry-pi"
       },
       "fieldConfig": {
         "defaults": {
@@ -439,7 +439,7 @@
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "P951FEA4DE68E13C5"
+            "uid": "influxdb-raspberry-pi"
           },
           "query": "from(bucket: \"temp-monitor-bucket\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r._measurement == \"measurement\")\r\n  |> filter(fn: (r) => r._field == \"temperature\")\r\n  |> aggregateWindow(every: 1m, fn: mean, createEmpty: false)\r\n  |> yield(name: \"mean_temperature\")",
           "refId": "A"
