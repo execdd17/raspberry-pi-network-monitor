@@ -16,7 +16,7 @@ from pathlib import Path
 import platform
 import sys
 
-from mac_vendor_lookup import MacLookup, MacVendorLookupError
+from mac_vendor_lookup import MacLookup, VendorNotFoundError
 
 # Load environment variables from .env file
 # load_dotenv()
@@ -97,7 +97,7 @@ def get_vendor(mac: str) -> str:
     """Retrieve the vendor/manufacturer for a given MAC address."""
     try:
         return MacLookup().lookup(mac)
-    except MacVendorLookupError:
+    except VendorNotFoundError:
         return "Unknown"
     except Exception as e:
         logger.error(f"Error retrieving vendor for MAC {mac}: {e}")
