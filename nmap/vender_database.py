@@ -30,25 +30,8 @@ class MacLookupVendorDatabase(VendorDatabase):
         self.mac_lookup = MacLookup()
 
     def update_if_needed(self) -> None:
-        """
-        Update the local MAC vendor database if it's missing or older than `update_interval_days`.
-        """
-        logger.info("Checking MAC vendor database status...")
-        if self.vendor_db_path.exists():
-            last_modified = datetime.fromtimestamp(self.vendor_db_path.stat().st_mtime)
-            if datetime.now() - last_modified < timedelta(days=self.update_interval_days):
-                logger.info("MAC vendor database is up-to-date.")
-                # Load existing DB from the path
-                self.mac_lookup.load_vendors_from_path(str(self.vendor_db_path))
-                return
-
         logger.info("Updating MAC vendor database...")
         self.mac_lookup.update_vendors()
-
-        # By default, mac_vendor_lookup may store the DB in its own location.
-        # We load from that default and then save it to our custom path so
-        # subsequent runs also detect it.
-        self.mac_lookup.load_vendors_from_path(str(self.vendor_db_path))
         logger.info("MAC vendor database updated successfully.")
 
     def get_vendor(self, mac: str) -> str:
