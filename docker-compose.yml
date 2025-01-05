@@ -27,6 +27,7 @@ services:
       DOCKER_INFLUXDB_INIT_ORG: temp-monitor-org
       DOCKER_INFLUXDB_INIT_BUCKET: temp-monitor-bucket
       DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: WkoTClqWxUZ_zCoUn3RZsMNVehVG8MeYFy_R9yaBUEbwmxgAxvJVdIkMdHJhVmXqoJ6jJxWAJXoA3sPWgMPxKQ==
+    
 
   grafana:
     image: grafana/grafana
