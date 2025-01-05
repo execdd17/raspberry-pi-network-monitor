@@ -1,0 +1,18 @@
+# Use an official Python runtime as a parent image
+FROM python:3.10-slim
+
+# Set environment variables
+ENV PYTHONUNBUFFERED=1
+
+# Install Python dependencies
+COPY requirements.txt /app/requirements.txt
+RUN pip install --no-cache-dir -r /app/requirements.txt
+
+COPY *.py /app/
+COPY known_devices.json /app/known_devices.json
+
+# Set working directory
+WORKDIR /app
+
+# Run the speedtest script
+CMD ["python", "app.py"]

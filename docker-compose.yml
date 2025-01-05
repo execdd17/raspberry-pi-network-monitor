@@ -81,3 +81,28 @@ services:
       SPEEDTEST_INTERVAL: 300        # Interval in seconds (e.g., 300s = 5 minutes)
       INFLUXDB_URL: http://influxdb:8086
     restart: on-failure
+
+  nmap_monitor:
+    build: ./nmap     # Path to your Nmap Python project's Dockerfile
+    image: nmap_monitor:latest  # Name/tag for the built image
+    container_name: nmap_monitor
+    networks:
+      - skynet
+    depends_on:
+      influxdb:
+        condition: service_healthy
+    environment:
+      INFLUXDB_TOKEN: WkoTClqWxUZ_zCoUn3RZsMNVehVG8MeYFy_R9yaBUEbwmxgAxvJVdIkMdHJhVmXqoJ6jJxWAJXoA3sPWgMPxKQ==
+      INFLUXDB_BUCKET: temp-monitor-bucket
+      INFLUXDB_ORG: temp-monitor-org
+      INFLUXDB_URL: http://influxdb:8086
+      NETWORK_SCAN_INTERVAL: 300   # e.g. 5 minutes
+      KNOWN_DEVICES_FILE: known_devices.json
+    restart: on-failure
+
+    # Optional: Some nmap features require direct access to the host's network stack.
+    # If you need that, uncomment the line below. But you lose container isolation.
+    network_mode: "host"
+    
+    # Or some setups may need privileged mode for raw packet scanning:
+    privileged: true
