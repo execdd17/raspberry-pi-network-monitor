@@ -2,6 +2,7 @@
     {
         "device_name": "Alex's Desktop",
         "mac_address": "9C:6B:00:1E:D3:AA",
-        "device_type": "Desktop"
+        "device_type": "Desktop",
+        "ip_address": "192.168.1.115"
     }
 ]

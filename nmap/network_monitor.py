@@ -10,7 +10,7 @@ from influxdb_client import Point
 from influxdb_client.client.write_api import SYNCHRONOUS
 
 # from dotenv import load_dotenv
-from device import Device  # Import the simplified Device data class
+from device import Device  # Import the updated Device data class
 
 from pathlib import Path
 import platform
@@ -64,8 +64,10 @@ def load_known_devices(file_path: Path) -> List[Device]:
         known_devices: List[Device] = [
             Device(
                 mac_address=device["mac_address"].upper(),
+                ip_address=device.get("ip_address", "Unknown"),  # Optional field
                 state="down",  # Initial state as down; will be updated during scan
-                known=True
+                known=True,
+                vendor="Unknown"  # Initial vendor as Unknown
             )
             for device in devices_json
         ]
@@ -114,10 +116,11 @@ def process_scan_results(nm: nmap.PortScanner, known_devices: List[Device], mac_
     for host in nm.all_hosts():
         if nm[host].state() == "up":
             mac: str = nm[host]['addresses'].get('mac', 'UNKNOWN').upper()
-            state = "up"
+            ip_address: str = nm[host]['addresses'].get('ipv4', 'Unknown')  # Extract IP address
+            state: str = "up"
 
             if mac == 'UNKNOWN':
-                logger.debug(f"Host {host} is up but MAC address is unknown.")
+                logger.debug(f"Host {host} ({ip_address}) is up but MAC address is unknown.")
                 continue  # Skip hosts without MAC addresses
 
             vendor: str = get_vendor(mac, mac_lookup)
@@ -126,17 +129,19 @@ def process_scan_results(nm: nmap.PortScanner, known_devices: List[Device], mac_
                 device = known_mac_dict[mac]
                 device.state = "up"
                 device.vendor = vendor
+                device.ip_address = ip_address  # Update IP address
                 connected_devices.append(device)
-                logger.debug(f"Known device detected: MAC={mac}, Vendor={vendor}")
+                logger.debug(f"Known device detected: MAC={mac}, IP={ip_address}, Vendor={vendor}")
             else:
                 unknown_device = Device(
                     mac_address=mac,
+                    ip_address=ip_address,
                     state=state,
                     known=False,
                     vendor=vendor
                 )
                 unknown_devices.append(unknown_device)
-                logger.debug(f"Unknown device detected: MAC={mac}, Vendor={vendor}")
+                logger.debug(f"Unknown device detected: MAC={mac}, IP={ip_address}, Vendor={vendor}")
 
     logger.info(f"Connected devices: {len(connected_devices)}, Unknown devices: {len(unknown_devices)}")
     return connected_devices, unknown_devices
@@ -151,7 +156,8 @@ def write_to_influxdb(connected: List[Device], unknown: List[Device]) -> None:
             .tag("mac_address", device.mac_address) \
             .tag("known", str(device.known)) \
             .field("state", device.state) \
-            .field("vendor", device.vendor if device.vendor else "Unknown")
+            .field("vendor", device.vendor if device.vendor else "Unknown") \
+            .field("ip_address", device.ip_address if device.ip_address else "Unknown")  # New field
         points.append(point)
 
     # Add unknown devices
@@ -160,7 +166,8 @@ def write_to_influxdb(connected: List[Device], unknown: List[Device]) -> None:
             .tag("mac_address", device.mac_address) \
             .tag("known", str(device.known)) \
             .field("state", device.state) \
-            .field("vendor", device.vendor if device.vendor else "Unknown")
+            .field("vendor", device.vendor if device.vendor else "Unknown") \
+            .field("ip_address", device.ip_address if device.ip_address else "Unknown")  # New field
         points.append(point)
 
     try:
