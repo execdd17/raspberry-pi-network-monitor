@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Dict
 from typing import List, Tuple, Dict
 
-
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 class DeviceManager:

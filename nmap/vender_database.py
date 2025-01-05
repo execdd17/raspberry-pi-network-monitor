@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from mac_vendor_lookup import MacLookup, VendorNotFoundError
 
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 class VendorDatabase:

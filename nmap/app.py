@@ -12,6 +12,7 @@ from vender_database import MacLookupVendorDatabase
 from device_manager import DeviceManager
 from influxdb_writer import InfluxDBWriter
 
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 class NetworkMonitorApp:

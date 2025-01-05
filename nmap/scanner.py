@@ -2,7 +2,7 @@ import logging
 import nmap
 from typing import Dict
 
-
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 class Scanner:
