@@ -97,7 +97,7 @@ services:
       DB_PORT: 5432
       DB_NAME: networkdb
       DB_USER: admin
-      DB_PASSWORD: u29UZnMGb{w1
+      DB_PASSWORD: u29UZnMGbw1
     restart: on-failure
     privileged: true
 
@@ -111,7 +111,7 @@ services:
     - "5432:5432"  # Expose Postgres on host port 5432 because of nmap_monitor being in host networking
     environment:
       POSTGRES_USER: admin
-      POSTGRES_PASSWORD: u29UZnMGb{w1
+      POSTGRES_PASSWORD: u29UZnMGbw1
       POSTGRES_DB: networkdb
     volumes:
       - pgdata:/var/lib/postgresql/data
