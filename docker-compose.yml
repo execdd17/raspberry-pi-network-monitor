@@ -115,3 +115,8 @@ services:
       - pgdata:/var/lib/postgresql/data
       # Mount your init scripts so Postgres auto-runs them:
       - ./postgres:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "sh -c 'pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}'"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
