@@ -120,5 +120,5 @@ services:
     healthcheck:
       test: ["CMD-SHELL", "sh -c 'pg_isready -U admin -d networkdb'"]
       interval: 10s
-      timeout: 3s
+      timeout: 5s
       retries: 3

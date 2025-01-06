@@ -13,6 +13,6 @@ datasources:
     jsonData:
         database: networkdb
         sslmode: disable
-    secureJsonFields:
+    secureJsonData:
       password: u29UZnMGbw1
     overwrite: true
