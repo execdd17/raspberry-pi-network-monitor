@@ -5,6 +5,7 @@ datasources:
     type: grafana-postgresql-datasource
     access: proxy
     url: postgres:5432
+    user: admin
     isDefault: false
     basicAuth: false
     editable: true
@@ -13,5 +14,5 @@ datasources:
         database: networkdb
         sslmode: disable
     secureJsonFields:
-      password: true
+      password: u29UZnMGbw1
     overwrite: true
