@@ -22,7 +22,7 @@ from psycopg2.extras import DictCursor
 # ---------------------------------------------------------------------------
 logging.basicConfig(
     level=logging.DEBUG,
-    format='%(asctime)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
