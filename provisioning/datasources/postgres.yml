@@ -1,0 +1,17 @@
+apiVersion: 1
+
+datasources:
+  - name: Postgres
+    type: grafana-postgresql-datasource
+    access: proxy
+    url: postgres:5432
+    isDefault: false
+    basicAuth: false
+    editable: true
+    uid: postgres-raspberry-pi  # This way our Dashboards can have a stable reference
+    jsonData:
+        database: networkdb
+        sslmode: disable
+    secureJsonFields:
+      password: true
+    overwrite: true
