@@ -93,7 +93,7 @@ services:
     environment:
       NETWORK_SCAN_INTERVAL: 300
       KNOWN_DEVICES_FILE: known_devices.json
-      DB_HOST: 127.0.0.1
+      DB_HOST: 127.0.0.1  # I can't use 'postgres' because this container will use host networking mode
       DB_PORT: 5432
       DB_NAME: networkdb
       DB_USER: admin
@@ -107,6 +107,8 @@ services:
     restart: unless-stopped
     networks:
       - skynet
+    ports:
+    - "5432:5432"  # Expose Postgres on host port 5432 because of nmap_monitor being in host networking
     environment:
       - POSTGRES_USER=admin
       - POSTGRES_PASSWORD=secret
