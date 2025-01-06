@@ -15,7 +15,7 @@ import nmap
 from mac_vendor_lookup import MacLookup, VendorNotFoundError
 import psycopg2
 from psycopg2.extras import DictCursor
-from dotenv import load_dotenv
+# from dotenv import load_dotenv
 
 # ---------------------------------------------------------------------------
 #  LOGGING SETUP
