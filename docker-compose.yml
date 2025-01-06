@@ -78,7 +78,7 @@ services:
       INFLUXDB_TOKEN: WkoTClqWxUZ_zCoUn3RZsMNVehVG8MeYFy_R9yaBUEbwmxgAxvJVdIkMdHJhVmXqoJ6jJxWAJXoA3sPWgMPxKQ==
       INFLUXDB_BUCKET: temp-monitor-bucket
       INFLUXDB_ORG: temp-monitor-org
-      SPEEDTEST_INTERVAL: 300
+      SPEEDTEST_INTERVAL: 600
       INFLUXDB_URL: http://influxdb:8086
     restart: on-failure
 
@@ -93,7 +93,7 @@ services:
     environment:
       NETWORK_SCAN_INTERVAL: 300
       KNOWN_DEVICES_FILE: known_devices.json
-      DB_HOST: postgres
+      DB_HOST: 127.0.0.1
       DB_PORT: 5432
       DB_NAME: networkdb
       DB_USER: admin

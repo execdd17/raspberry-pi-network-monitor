@@ -15,7 +15,7 @@ bucket = os.environ.get("INFLUXDB_BUCKET")
 org = os.environ.get("INFLUXDB_ORG")
 token = os.environ.get("INFLUXDB_TOKEN")
 url = os.environ.get("INFLUXDB_URL", "http://influxdb:8086")
-interval = int(os.environ.get("SPEEDTEST_INTERVAL", "300"))  # Default to 300 seconds (5 minutes)
+interval = int(os.environ.get("SPEEDTEST_INTERVAL", "600"))  # Default to 300 seconds (10 minutes)
 
 # Initialize InfluxDB client
 client = influxdb_client.InfluxDBClient(url=url, token=token, org=org)
