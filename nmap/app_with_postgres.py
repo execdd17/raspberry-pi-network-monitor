@@ -81,27 +81,13 @@ class NmapScanner(Scanner):
 
 class MacLookupVendorDatabase(VendorDatabase):
     """Concrete vendor database using mac_vendor_lookup."""
-    def __init__(self, vendor_db_path: str, update_interval_days: int = 7) -> None:
+    def __init__(self, vendor_db_path: str) -> None:
         self.vendor_db_path = vendor_db_path
-        self.update_interval_days = update_interval_days
         self.mac_lookup = MacLookup()
 
     def update_if_needed(self) -> None:
-        logger.info("Checking MAC vendor database status...")
-
-        from pathlib import Path
-        db_file = Path(self.vendor_db_path)
-        if db_file.exists():
-            last_modified = datetime.fromtimestamp(db_file.stat().st_mtime)
-            if datetime.now() - last_modified < timedelta(days=self.update_interval_days):
-                logger.info("MAC vendor database is up-to-date.")
-                self.mac_lookup.load_vendors_from_path(str(db_file))
-                return
-
         logger.info("Updating MAC vendor database...")
         self.mac_lookup.update_vendors()
-        # Load from default location, then save to custom path
-        self.mac_lookup.load_vendors_from_path(str(db_file))
         logger.info("MAC vendor database updated successfully.")
 
     def get_vendor(self, mac: str) -> str:
@@ -251,7 +237,7 @@ class NetworkMonitorApp:
 
         # Initialize services
         self.scanner = NmapScanner()
-        self.vendor_db = MacLookupVendorDatabase(self.vendor_db_path, update_interval_days=7)
+        self.vendor_db = MacLookupVendorDatabase(self.vendor_db_path)
         self.pg_manager = PostgresDeviceManager(
             db_host=self.db_host,
             db_port=self.db_port,
