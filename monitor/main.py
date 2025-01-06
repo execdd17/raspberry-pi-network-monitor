@@ -34,4 +34,4 @@ while True:
     )
     logger.info(f"{point}")
     write_api.write(bucket=bucket, org=org, record=point)
-    time.sleep(1)
+    time.sleep(5)

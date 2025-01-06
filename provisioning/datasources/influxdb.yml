@@ -5,7 +5,7 @@ datasources:
     type: influxdb
     access: proxy
     url: http://influxdb:8086
-    isDefault: false
+    isDefault: true
     basicAuth: false
     editable: true
     uid: influxdb-raspberry-pi  # This way our Dashboards can have a stable reference

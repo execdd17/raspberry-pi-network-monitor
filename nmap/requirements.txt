@@ -1,0 +1,3 @@
+python-nmap 
+psycopg2-binary
+mac-vendor-lookup

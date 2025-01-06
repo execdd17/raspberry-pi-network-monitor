@@ -4,6 +4,7 @@ networks:
 volumes:
   influxdb_data:
   grafana_data:
+  pgdata:  # volume to store Postgres data
 
 services:
   influxdb:
@@ -27,7 +28,6 @@ services:
       DOCKER_INFLUXDB_INIT_ORG: temp-monitor-org
       DOCKER_INFLUXDB_INIT_BUCKET: temp-monitor-bucket
       DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: WkoTClqWxUZ_zCoUn3RZsMNVehVG8MeYFy_R9yaBUEbwmxgAxvJVdIkMdHJhVmXqoJ6jJxWAJXoA3sPWgMPxKQ==
-    
 
   grafana:
     image: grafana/grafana
@@ -78,6 +78,47 @@ services:
       INFLUXDB_TOKEN: WkoTClqWxUZ_zCoUn3RZsMNVehVG8MeYFy_R9yaBUEbwmxgAxvJVdIkMdHJhVmXqoJ6jJxWAJXoA3sPWgMPxKQ==
       INFLUXDB_BUCKET: temp-monitor-bucket
       INFLUXDB_ORG: temp-monitor-org
-      SPEEDTEST_INTERVAL: 300        # Interval in seconds (e.g., 300s = 5 minutes)
+      SPEEDTEST_INTERVAL: 600
       INFLUXDB_URL: http://influxdb:8086
     restart: on-failure
+
+  nmap_monitor:
+    build: ./nmap
+    image: nmap_monitor:latest
+    container_name: nmap_monitor
+    network_mode: "host"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      NETWORK_SCAN_INTERVAL: 300
+      KNOWN_DEVICES_FILE: known_devices.json
+      DB_HOST: 127.0.0.1  # I can't use 'postgres' because this container will use host networking mode
+      DB_PORT: 5432
+      DB_NAME: networkdb
+      DB_USER: admin
+      DB_PASSWORD: u29UZnMGbw1
+    restart: on-failure
+    privileged: true
+
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    restart: unless-stopped
+    networks:
+      - skynet
+    ports:
+    - "5432:5432"  # Expose Postgres on host port 5432 because of nmap_monitor being in host networking
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: u29UZnMGbw1
+      POSTGRES_DB: networkdb
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      # Mount your init scripts so Postgres auto-runs them:
+      - ./postgres:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "sh -c 'pg_isready -U admin -d networkdb'"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
