@@ -86,8 +86,7 @@ services:
     build: ./nmap     # Path to your Nmap Python project's Dockerfile
     image: nmap_monitor:latest  # Name/tag for the built image
     container_name: nmap_monitor
-    networks:
-      - skynet
+    network_mode: "host"
     depends_on:
       influxdb:
         condition: service_healthy
@@ -95,7 +94,7 @@ services:
       INFLUXDB_TOKEN: WkoTClqWxUZ_zCoUn3RZsMNVehVG8MeYFy_R9yaBUEbwmxgAxvJVdIkMdHJhVmXqoJ6jJxWAJXoA3sPWgMPxKQ==
       INFLUXDB_BUCKET: temp-monitor-bucket
       INFLUXDB_ORG: temp-monitor-org
-      INFLUXDB_URL: http://influxdb:8086
+      INFLUXDB_URL: http://127.0.0.1:8086
       NETWORK_SCAN_INTERVAL: 300   # e.g. 5 minutes
       KNOWN_DEVICES_FILE: known_devices.json
     restart: on-failure

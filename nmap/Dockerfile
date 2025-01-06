@@ -6,6 +6,9 @@ RUN apt-get update && \
     apt-get install -y nmap && \
     rm -rf /var/lib/apt/lists/*
 
+# Create the cache directory for mac_vendor_lookup
+RUN mkdir -p /root/.cache
+
 # Set environment variables
 ENV PYTHONUNBUFFERED=1
 
