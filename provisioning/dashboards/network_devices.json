@@ -19,9 +19,34 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 2,
+  "id": 1,
   "links": [],
   "panels": [
+    {
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 2,
+      "options": {
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
+        "content": "# Unknown Devices\nI have manually curated a list of MAC addresses from devices that I know. The following visualizations capture the ones that I don't. ",
+        "mode": "markdown"
+      },
+      "pluginVersion": "11.4.0",
+      "title": "",
+      "type": "text"
+    },
     {
       "datasource": {
         "type": "grafana-postgresql-datasource",
@@ -60,7 +85,7 @@
         "h": 20,
         "w": 24,
         "x": 0,
-        "y": 0
+        "y": 3
       },
       "id": 1,
       "options": {
@@ -125,6 +150,6 @@
   "timezone": "browser",
   "title": "Network Devices",
   "uid": "ae94zmakoxo1sc",
-  "version": 2,
+  "version": 1,
   "weekStart": ""
 }
