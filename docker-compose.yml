@@ -4,6 +4,7 @@ networks:
 volumes:
   influxdb_data:
   grafana_data:
+  pgdata:  # volume to store Postgres data
 
 services:
   influxdb:
@@ -27,7 +28,6 @@ services:
       DOCKER_INFLUXDB_INIT_ORG: temp-monitor-org
       DOCKER_INFLUXDB_INIT_BUCKET: temp-monitor-bucket
       DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: WkoTClqWxUZ_zCoUn3RZsMNVehVG8MeYFy_R9yaBUEbwmxgAxvJVdIkMdHJhVmXqoJ6jJxWAJXoA3sPWgMPxKQ==
-    
 
   grafana:
     image: grafana/grafana
@@ -78,30 +78,40 @@ services:
       INFLUXDB_TOKEN: WkoTClqWxUZ_zCoUn3RZsMNVehVG8MeYFy_R9yaBUEbwmxgAxvJVdIkMdHJhVmXqoJ6jJxWAJXoA3sPWgMPxKQ==
       INFLUXDB_BUCKET: temp-monitor-bucket
       INFLUXDB_ORG: temp-monitor-org
-      SPEEDTEST_INTERVAL: 300        # Interval in seconds (e.g., 300s = 5 minutes)
+      SPEEDTEST_INTERVAL: 300
       INFLUXDB_URL: http://influxdb:8086
     restart: on-failure
 
   nmap_monitor:
-    build: ./nmap     # Path to your Nmap Python project's Dockerfile
-    image: nmap_monitor:latest  # Name/tag for the built image
+    build: ./nmap
+    image: nmap_monitor:latest
     container_name: nmap_monitor
     network_mode: "host"
     depends_on:
-      influxdb:
+      postgres:
         condition: service_healthy
     environment:
-      INFLUXDB_TOKEN: WkoTClqWxUZ_zCoUn3RZsMNVehVG8MeYFy_R9yaBUEbwmxgAxvJVdIkMdHJhVmXqoJ6jJxWAJXoA3sPWgMPxKQ==
-      INFLUXDB_BUCKET: temp-monitor-bucket
-      INFLUXDB_ORG: temp-monitor-org
-      INFLUXDB_URL: http://127.0.0.1:8086
-      NETWORK_SCAN_INTERVAL: 300   # e.g. 5 minutes
+      NETWORK_SCAN_INTERVAL: 300
       KNOWN_DEVICES_FILE: known_devices.json
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: networkdb
+      DB_USER: admin
+      DB_PASSWORD=: secret
     restart: on-failure
-
-    # Optional: Some nmap features require direct access to the host's network stack.
-    # If you need that, uncomment the line below. But you lose container isolation.
-    # network_mode: "host"
-    
-    # Or some setups may need privileged mode for raw packet scanning:
     privileged: true
+
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    restart: unless-stopped
+    networks:
+      - skynet
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=secret
+      - POSTGRES_DB=networkdb
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      # Mount your init scripts so Postgres auto-runs them:
+      - ./postgres:/docker-entrypoint-initdb.d
