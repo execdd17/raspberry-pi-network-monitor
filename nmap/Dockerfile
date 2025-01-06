@@ -23,4 +23,4 @@ COPY known_devices.json /app/known_devices.json
 WORKDIR /app
 
 # Run the speedtest script
-CMD ["python", "app.py"]
+CMD ["python", "app_with_postgres.py"]
