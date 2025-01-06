@@ -110,15 +110,15 @@ services:
     ports:
     - "5432:5432"  # Expose Postgres on host port 5432 because of nmap_monitor being in host networking
     environment:
-      - POSTGRES_USER: postgres
-      - POSTGRES_PASSWORD: u29UZnMGb{w1
-      - POSTGRES_DB: networkdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: u29UZnMGb{w1
+      POSTGRES_DB: networkdb
     volumes:
       - pgdata:/var/lib/postgresql/data
       # Mount your init scripts so Postgres auto-runs them:
       - ./postgres:/docker-entrypoint-initdb.d
     healthcheck:
-      test: ["CMD-SHELL", "sh -c 'pg_isready -U admin -d networkdb'"]
+      test: ["CMD-SHELL", "sh -c 'pg_isready -U postgres -d networkdb'"]
       interval: 10s
       timeout: 3s
       retries: 3
