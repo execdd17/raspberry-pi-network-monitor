@@ -269,6 +269,9 @@ class NetworkMonitorApp:
         all_hosts = nm_result.all_hosts() if hasattr(nm_result, "all_hosts") else []
         logger.debug(f"Processing {len(all_hosts)} hosts...")
 
+        # Set to keep track of found MAC addresses
+        found_macs = set()
+
         for host in all_hosts:
             if nm_result[host].state() == "up":
                 mac = nm_result[host]['addresses'].get('mac', 'UNKNOWN').upper()
@@ -277,6 +280,9 @@ class NetworkMonitorApp:
                 if mac == "UNKNOWN":
                     # Skip hosts without MAC addresses
                     continue
+
+                # Add to found MACs
+                found_macs.add(mac)
 
                 # Lookup vendor
                 vendor = self.vendor_db.get_vendor(mac)
@@ -301,6 +307,14 @@ class NetworkMonitorApp:
 
                 # Upsert in Postgres
                 self.pg_manager.upsert_device(dev)
+
+        # Now, mark known devices not found in the current scan as "down"
+        for mac, device in known_dict.items():
+            if mac not in found_macs:
+                if device.state != "down":  # Only update if state is not already "down"
+                    logger.debug(f"Marking device {mac} as down.")
+                    device.state = "down"
+                    self.pg_manager.upsert_device(device)
 
         logger.info("Scan processing complete.")
 
