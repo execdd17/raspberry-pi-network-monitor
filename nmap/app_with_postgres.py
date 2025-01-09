@@ -318,7 +318,7 @@ class NetworkMonitorApp:
         for mac, device in known_dict.items():
             if mac not in found_macs:
                 if device.state != "down":  # Only update if state is not already "down"
-                    logger.debug(f"Did not find known host {mac} {device.ip}. Setting it to down.")
+                    logger.debug(f"Did not find known host {mac} {device.ip_address}. Setting it to down.")
                     device.state = "down"
                     self.pg_manager.upsert_device(device)
 
