@@ -267,21 +267,25 @@ class NetworkMonitorApp:
 
         # Process scan results
         all_hosts = nm_result.all_hosts() if hasattr(nm_result, "all_hosts") else []
-        logger.debug(f"Processing {len(all_hosts)} hosts...")
+        logger.info(f"Processing {len(all_hosts)} hosts...")
 
         # Set to keep track of found MAC addresses
         found_macs = set()
 
         for host in all_hosts:
+            logger.debug(f"looking at host: {host}")
+
             if nm_result[host].state() == "up":
                 mac = nm_result[host]['addresses'].get('mac', 'UNKNOWN').upper()
                 ip = nm_result[host]['addresses'].get('ipv4', 'Unknown')
 
                 if mac == "UNKNOWN":
                     # Skip hosts without MAC addresses
+                    logger.warning(f"{nm_result[host]} did not have a MAC address"
                     continue
 
                 # Add to found MACs
+                logger.debug(f"Adding {mac} to found_macs")
                 found_macs.add(mac)
 
                 # Lookup vendor
@@ -289,6 +293,7 @@ class NetworkMonitorApp:
 
                 # Check if device is known
                 if mac in known_dict:
+                    logger.debug(f"Found known host {mac} {ip}. Setting it to up.")
                     # Update existing device
                     dev = known_dict[mac]
                     dev.state = "up"
@@ -297,6 +302,7 @@ class NetworkMonitorApp:
                     # dev.known remains True
                 else:
                     # Brand new device -> not known yet
+                    logger.debug(f"Found unknown host {mac} {ip}. Setting it to up.")
                     dev = Device(
                         mac_address=mac,
                         ip_address=ip,
@@ -312,7 +318,7 @@ class NetworkMonitorApp:
         for mac, device in known_dict.items():
             if mac not in found_macs:
                 if device.state != "down":  # Only update if state is not already "down"
-                    logger.debug(f"Marking device {mac} as down.")
+                    logger.debug(f"Did not find known host {mac} {device.ip}. Setting it to down.")
                     device.state = "down"
                     self.pg_manager.upsert_device(device)
 
