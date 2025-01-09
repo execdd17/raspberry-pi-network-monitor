@@ -16,8 +16,7 @@ ENV PYTHONUNBUFFERED=1
 COPY requirements.txt /app/requirements.txt
 RUN pip install --no-cache-dir -r /app/requirements.txt
 
-COPY *.py /app/
-COPY known_devices.json /app/known_devices.json
+COPY app_with_postgres.py /app/app_with_postgres.py
 
 # Set working directory
 WORKDIR /app
