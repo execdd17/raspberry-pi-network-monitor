@@ -281,7 +281,7 @@ class NetworkMonitorApp:
 
                 if mac == "UNKNOWN":
                     # Skip hosts without MAC addresses
-                    logger.warning(f"{nm_result[host]} did not have a MAC address"
+                    logger.warning(f"{nm_result[host]} did not have a MAC address")
                     continue
 
                 # Add to found MACs
