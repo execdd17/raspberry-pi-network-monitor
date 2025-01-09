@@ -44,7 +44,7 @@ class Device:
 # ---------------------------------------------------------------------------
 class Scanner:
     """A base class for any network scanner implementation."""
-    def scan_network(self, network: str = "192.168.1.0/24", arguments: str = "-sn") -> Dict:
+    def scan_network(self, network: str = "192.168.1.0/24", arguments: str = "-sn -PR") -> Dict:
         raise NotImplementedError("scan_network must be overridden by subclasses.")
 
 # ---------------------------------------------------------------------------
@@ -66,7 +66,7 @@ class NmapScanner(Scanner):
     def __init__(self) -> None:
         self.nm = nmap.PortScanner()
 
-    def scan_network(self, network: str = "192.168.1.0/24", arguments: str = "-sn") -> Dict:
+    def scan_network(self, network: str = "192.168.1.0/24", arguments: str = "-sn -PR") -> Dict:
         logger.info(f"Starting network scan on {network} with arguments '{arguments}'")
         try:
             self.nm.scan(hosts=network, arguments=arguments)
