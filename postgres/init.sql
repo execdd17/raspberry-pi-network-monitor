@@ -86,62 +86,13 @@ INSERT INTO devices (mac_address, ip_address, vendor, description, known, first_
 VALUES
 ('CC:15:31:C8:05:05', '192.168.1.109', 'Dell', 'Natalie School Computer. Latitude 7420', true, NOW(), NOW());
 
---- Kid's Public Devices on Skynet
+INSERT INTO devices (mac_address, ip_address, vendor, description, known, first_seen, last_seen)
+VALUES
+('DC:45:46:58:6D:D5', '192.168.1.133', 'Dell', 'Layla School Computer. Latitude 3140', true, NOW(), NOW());
+
+--- Kid's Devices on Skynet
 
 --- Laura's Devices
 INSERT INTO devices (mac_address, ip_address, vendor, description, known, first_seen, last_seen)
 VALUES
 ('6E:59:19:D2:C5:BA', '192.168.1.116', 'Apple', 'Laura IPhone 15 Pro', true, NOW(), NOW());
-
-
--- INSERT INTO devices (mac_address, ip_address, vendor, description, known, first_seen, last_seen)
--- VALUES
--- ('B0:4A:39:71:4C:DB', '192.168.1.100', 'Beijing Roborock Technology Co., Ltd.', 'Robot Vacuum', true, NOW(), NOW());
-
--- INSERT INTO devices (mac_address, ip_address, vendor, description, known, first_seen, last_seen)
--- VALUES
--- ('D4:91:0F:9E:0F:8C', '192.168.1.102', 'Amazon Technologies Inc.', NULL, true, NOW(), NOW());
-
--- INSERT INTO devices (mac_address, ip_address, vendor, description, known, first_seen, last_seen)
--- VALUES
--- ('BC:45:5B:9E:81:AA', '192.168.1.105', 'Samsung Electronics Co.,Ltd', NULL, true, NOW(), NOW());
-
--- INSERT INTO devices (mac_address, ip_address, vendor, description, known, first_seen, last_seen)
--- VALUES
--- ('10:09:F9:97:7B:D8', '192.168.1.106', 'Amazon Technologies Inc.', NULL, true, NOW(), NOW());
-
--- INSERT INTO devices (mac_address, ip_address, vendor, description, known, first_seen, last_seen)
--- VALUES
--- ('68:DB:F5:4A:E9:7A', '192.168.1.108', 'Amazon Technologies Inc.', NULL, true, NOW(), NOW());
-
--- INSERT INTO devices (mac_address, ip_address, vendor, description, known, first_seen, last_seen)
--- VALUES
--- ('F8:54:B8:7B:91:B4', '192.168.1.109', 'Amazon Technologies Inc.', NULL, true, NOW(), NOW());
-
--- INSERT INTO devices (mac_address, ip_address, vendor, description, known, first_seen, last_seen)
--- VALUES
--- ('A8:B5:7C:79:36:80', '192.168.1.111', 'Roku, Inc', NULL, true, NOW(), NOW());
-
--- INSERT INTO devices (mac_address, ip_address, vendor, description, known, first_seen, last_seen)
--- VALUES
--- ('8C:3B:AD:CD:78:A8', '192.168.1.113', 'NETGEAR', NULL, true, NOW(), NOW());
-
--- INSERT INTO devices (mac_address, ip_address, vendor, description, known, first_seen, last_seen)
--- VALUES
--- ('AC:63:BE:B6:1A:55', '192.168.1.114', 'Amazon Technologies Inc.', NULL, true, NOW(), NOW());
-
--- INSERT INTO devices (mac_address, ip_address, vendor, description, known, first_seen, last_seen)
--- VALUES
--- ('9C:6B:00:1E:D3:AA', '192.168.1.115', 'ASRock Incorporation', NULL, true, NOW(), NOW());
-
--- INSERT INTO devices (mac_address, ip_address, vendor, description, known, first_seen, last_seen)
--- VALUES
--- ('6C:7E:67:B9:EE:F2', '192.168.1.129', 'Apple, Inc.', NULL, true, NOW(), NOW());
-
--- INSERT INTO devices (mac_address, ip_address, vendor, description, known, first_seen, last_seen)
--- VALUES
--- ('E0:F6:B5:9B:69:0B', '192.168.1.136', 'Nintendo Co.,Ltd', NULL, true, NOW(), NOW());
-
--- INSERT INTO devices (mac_address, ip_address, vendor, description, known, first_seen, last_seen)
--- VALUES
--- ('B8:27:EB:01:C6:C6', '192.168.1.21', 'Raspberry Pi Foundation', NULL, true, NOW(), NOW());
