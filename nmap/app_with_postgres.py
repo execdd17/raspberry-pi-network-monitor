@@ -34,6 +34,7 @@ class Device:
     mac_address: str
     ip_address: str
     vendor: str
+    description: Optional[str]
     known: bool = False
     state: str = "down"
     first_seen: Optional[datetime] = None
@@ -137,7 +138,7 @@ class PostgresDeviceManager:
         try:
             with self._get_connection() as conn, conn.cursor(cursor_factory=DictCursor) as cur:
                 cur.execute("""
-                    SELECT mac_address, ip_address, vendor, known, state, first_seen, last_seen
+                    SELECT mac_address, ip_address, vendor, description, known, state, first_seen, last_seen
                     FROM devices
                     WHERE known = TRUE;
                 """)
@@ -148,6 +149,7 @@ class PostgresDeviceManager:
                         mac_address=mac,
                         ip_address=row["ip_address"],
                         vendor=row["vendor"],
+                        description=row["description"],
                         known=row["known"],
                         state=row["state"],
                         first_seen=row["first_seen"],
