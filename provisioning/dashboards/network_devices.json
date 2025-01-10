@@ -82,7 +82,7 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 20,
+        "h": 10,
         "w": 24,
         "x": 0,
         "y": 3
@@ -144,7 +144,7 @@
         "h": 2,
         "w": 24,
         "x": 0,
-        "y": 23
+        "y": 13
       },
       "id": 4,
       "options": {
@@ -198,7 +198,7 @@
         "h": 19,
         "w": 24,
         "x": 0,
-        "y": 25
+        "y": 15
       },
       "id": 3,
       "options": {
@@ -270,6 +270,6 @@
   "timezone": "browser",
   "title": "Network Devices",
   "uid": "ae94zmakoxo1sc",
-  "version": 2,
+  "version": 3,
   "weekStart": ""
 }
