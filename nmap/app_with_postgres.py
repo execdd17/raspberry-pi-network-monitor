@@ -287,11 +287,8 @@ class NetworkMonitorApp:
                     continue
 
                 # Add to found MACs
-                logger.debug(f"Adding {mac} to found_macs")
+                logger.debug(f"Adding {mac} ({ip}) to found_macs")
                 found_macs.add(mac)
-
-                # Lookup vendor
-                vendor = self.vendor_db.get_vendor(mac)
 
                 # Check if device is known
                 if mac in known_dict:
@@ -299,16 +296,19 @@ class NetworkMonitorApp:
                     # Update existing device
                     dev = known_dict[mac]
                     dev.state = "up"
-                    dev.ip_address = ip
-                    dev.vendor = vendor
-                    # dev.known remains True
+                    dev.ip_address = ip     # IP address could have changed; overwrite
                 else:
                     # Brand new device -> not known yet
                     logger.debug(f"Found unknown host {mac} {ip}. Setting it to up.")
+
+                    # Lookup vendor
+                    vendor = self.vendor_db.get_vendor(mac)
+
                     dev = Device(
                         mac_address=mac,
                         ip_address=ip,
                         vendor=vendor,
+                        description=None,
                         known=False,  # Mark as unknown until we classify it
                         state="up"
                     )
