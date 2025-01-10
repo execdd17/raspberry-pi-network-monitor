@@ -106,7 +106,7 @@ class MacLookupVendorDatabase(VendorDatabase):
 class PostgresDeviceManager:
     """
     Manages device records in PostgreSQL:
-      - load_known_devices() for existing known devices
+      - load_all_devices() for existing devices
       - upsert_device() for inserting/updating a device record
     """
     def __init__(self,
@@ -129,18 +129,17 @@ class PostgresDeviceManager:
             user=self.db_user,
             password=self.db_password
         )
-
-    def load_known_devices(self) -> Dict[str, Device]:
+    
+    def load_all_devices(self) -> Dict[str, Device]:
         """
-        Returns a dict of {mac_address: Device} for devices with known=True in the DB.
+        Returns a dict of {mac_address: Device} for all devices in the DB.
         """
-        known_devices = {}
+        all_devices = {}
         try:
             with self._get_connection() as conn, conn.cursor(cursor_factory=DictCursor) as cur:
                 cur.execute("""
                     SELECT mac_address, ip_address, vendor, description, known, state, first_seen, last_seen
-                    FROM devices
-                    WHERE known = TRUE;
+                    FROM devices;
                 """)
                 rows = cur.fetchall()
                 for row in rows:
@@ -155,12 +154,12 @@ class PostgresDeviceManager:
                         first_seen=row["first_seen"],
                         last_seen=row["last_seen"]
                     )
-                    known_devices[mac] = dev
+                    all_devices[mac] = dev
         except Exception as e:
-            logger.error(f"Error loading known devices from Postgres: {e}")
+            logger.error(f"Error loading all devices from Postgres: {e}")
 
-        logger.info(f"Loaded {len(known_devices)} known devices from Postgres.")
-        return known_devices
+        logger.info(f"Loaded {len(all_devices)} devices from Postgres.")
+        return all_devices
 
     def upsert_device(self, device: Device) -> None:
         """
@@ -172,8 +171,7 @@ class PostgresDeviceManager:
 
         try:
             with self._get_connection() as conn, conn.cursor() as cur:
-                # If the device exists, update. Otherwise, insert a new row.
-                # We'll check by MAC (the primary key).
+                # Check if the device exists
                 cur.execute("""
                     SELECT mac_address FROM devices
                     WHERE mac_address = %s;
@@ -181,33 +179,30 @@ class PostgresDeviceManager:
                 existing = cur.fetchone()
 
                 if existing:
-                    # Update existing device
+                    # Update existing device without altering 'description', 'vendor', and known
                     cur.execute("""
                         UPDATE devices
                         SET ip_address = %s,
-                            vendor = %s,
-                            known = %s,
                             state = %s,
                             last_seen = %s
                         WHERE mac_address = %s;
                     """, (
                         device.ip_address,
-                        device.vendor,
                         device.known,
-                        device.state,
                         now,
                         device_mac
                     ))
                 else:
-                    # Insert new device
+                    # Insert new device with 'description'
                     cur.execute("""
                         INSERT INTO devices 
-                            (mac_address, ip_address, vendor, known, state, first_seen, last_seen)
-                        VALUES (%s, %s, %s, %s, %s, %s, %s);
+                            (mac_address, ip_address, vendor, description, known, state, first_seen, last_seen)
+                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s);
                     """, (
                         device_mac,
                         device.ip_address,
                         device.vendor,
+                        device.description,
                         device.known,
                         device.state,
                         now,
@@ -264,8 +259,8 @@ class NetworkMonitorApp:
             logger.error("No scan results returned.")
             return
 
-        # Load known devices from DB
-        known_dict = self.pg_manager.load_known_devices()
+        # Load all devices from DB (both known and unknown)
+        all_devices = self.pg_manager.load_all_devices()
 
         # Process scan results
         all_hosts = nm_result.all_hosts() if hasattr(nm_result, "all_hosts") else []
@@ -275,7 +270,7 @@ class NetworkMonitorApp:
         found_macs = set()
 
         for host in all_hosts:
-            logger.debug(f"looking at host: {host}")
+            logger.debug(f"Looking at host: {host}")
 
             if nm_result[host].state() == "up":
                 mac = nm_result[host]['addresses'].get('mac', 'UNKNOWN').upper()
@@ -290,11 +285,10 @@ class NetworkMonitorApp:
                 logger.debug(f"Adding {mac} ({ip}) to found_macs")
                 found_macs.add(mac)
 
-                # Check if device is known
-                if mac in known_dict:
-                    logger.debug(f"Found known host {mac} {ip}. Setting it to up.")
+                if mac in all_devices:
+                    logger.debug(f"Found existing host {mac} {ip}. Setting it to up.")
                     # Update existing device
-                    dev = known_dict[mac]
+                    dev = all_devices[mac]
                     dev.state = "up"
                     dev.ip_address = ip     # IP address could have changed; overwrite
                 else:
@@ -308,19 +302,19 @@ class NetworkMonitorApp:
                         mac_address=mac,
                         ip_address=ip,
                         vendor=vendor,
-                        description=None,
-                        known=False,  # Mark as unknown until we classify it
+                        description=None,  # No description for unknown devices
+                        known=False,      # Mark as unknown until we classify it
                         state="up"
                     )
 
                 # Upsert in Postgres
                 self.pg_manager.upsert_device(dev)
 
-        # Now, mark known devices not found in the current scan as "down"
-        for mac, device in known_dict.items():
+        # Now, mark all devices not found in the current scan as "down"
+        for mac, device in all_devices.items():
             if mac not in found_macs:
                 if device.state != "down":  # Only update if state is not already "down"
-                    logger.debug(f"Did not find known host {mac} {device.ip_address}. Setting it to down.")
+                    logger.debug(f"Did not find host {mac} {device.ip_address}. Setting it to down.")
                     device.state = "down"
                     self.pg_manager.upsert_device(device)
 
