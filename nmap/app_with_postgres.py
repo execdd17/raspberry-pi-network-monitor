@@ -188,7 +188,7 @@ class PostgresDeviceManager:
                         WHERE mac_address = %s;
                     """, (
                         device.ip_address,
-                        device.known,
+                        device.state,
                         now,
                         device_mac
                     ))
