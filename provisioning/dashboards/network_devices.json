@@ -64,7 +64,21 @@
             },
             "inspect": false
           },
-          "mappings": [],
+          "mappings": [
+            {
+              "options": {
+                "down": {
+                  "color": "#484000",
+                  "index": 1
+                },
+                "up": {
+                  "color": "#63000c",
+                  "index": 0
+                }
+              },
+              "type": "value"
+            }
+          ],
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -79,7 +93,24 @@
             ]
           }
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "state"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "applyToRow": true,
+                  "mode": "basic",
+                  "type": "color-background"
+                }
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 10,
@@ -177,22 +208,49 @@
             },
             "inspect": false
           },
-          "mappings": [],
+          "mappings": [
+            {
+              "options": {
+                "down": {
+                  "color": "transparent",
+                  "index": 0
+                },
+                "up": {
+                  "color": "#0a3b00",
+                  "index": 1
+                }
+              },
+              "type": "value"
+            }
+          ],
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
                 "color": "green",
                 "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
               }
             ]
           }
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "state"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "applyToRow": true,
+                  "mode": "basic",
+                  "type": "color-background"
+                }
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 19,
@@ -215,7 +273,7 @@
         "sortBy": [
           {
             "desc": false,
-            "displayName": "state"
+            "displayName": "ip_address"
           }
         ]
       },
@@ -230,7 +288,7 @@
           "format": "table",
           "hide": false,
           "rawQuery": true,
-          "rawSql": "SELECT mac_address, ip_address, state, vendor, description\r\nFROM devices \r\nWHERE known \r\nORDER BY ip_address ",
+          "rawSql": "SELECT mac_address, ip_address, state, vendor, description, first_seen, last_seen\r\nFROM devices \r\nWHERE known \r\nORDER BY ip_address ",
           "refId": "A",
           "sql": {
             "columns": [
@@ -256,7 +314,6 @@
     }
   ],
   "preload": false,
-  "refresh": "auto",
   "schemaVersion": 40,
   "tags": [],
   "templating": {
@@ -270,6 +327,6 @@
   "timezone": "browser",
   "title": "Network Devices",
   "uid": "ae94zmakoxo1sc",
-  "version": 3,
+  "version": 5,
   "weekStart": ""
 }
