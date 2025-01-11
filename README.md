@@ -19,8 +19,8 @@ docker compose up     # start containers (use -d to detatch from the terminal)
 docker compose down   # stop containers (you can just control-c if still attached)
 ```
 
-### Included Grafana Dashboard
+### Included Grafana Dashboards
 <img src="img/speed_and_temp_dashboard.png" width="500px">
-
+<img src="img/Screenshot 2025-01-10 211412.png" width="500px">
 ### Credits
 This repository is a fork of https://github.com/akarazeev/temp-monitor
