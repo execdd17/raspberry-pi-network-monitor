@@ -7,7 +7,8 @@ CREATE TABLE IF NOT EXISTS devices (
     known        BOOLEAN DEFAULT false,
     state        VARCHAR(10) DEFAULT 'down',
     first_seen   TIMESTAMP NOT NULL,
-    last_seen    TIMESTAMP NOT NULL
+    last_seen    TIMESTAMP NOT NULL,
+    open_ports JSONB DEFAULT '[]'::JSONB
 );
 
 -- Router and Satellites

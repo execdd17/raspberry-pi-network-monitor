@@ -6,7 +6,7 @@ import time
 import logging
 import argparse
 import platform
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from typing import List, Dict, Optional
 
@@ -15,7 +15,7 @@ import nmap
 from mac_vendor_lookup import MacLookup, VendorNotFoundError
 import psycopg2
 from psycopg2.extras import DictCursor
-# from dotenv import load_dotenv
+import json  # Added for JSON serialization
 
 # ---------------------------------------------------------------------------
 #  LOGGING SETUP
@@ -39,13 +39,14 @@ class Device:
     state: str = "down"
     first_seen: Optional[datetime] = None
     last_seen: Optional[datetime] = None
+    open_ports: List[Dict[str, str]] = field(default_factory=list)  # Updated field
 
 # ---------------------------------------------------------------------------
 #  SCANNER INTERFACE
 # ---------------------------------------------------------------------------
 class Scanner:
     """A base class for any network scanner implementation."""
-    def scan_network(self, network: str = "192.168.1.0/24", arguments: str = "-sn -PR") -> Dict:
+    def scan_network(self, network: str = "192.168.1.0/24", arguments: str = "-PR") -> Dict:
         raise NotImplementedError("scan_network must be overridden by subclasses.")
 
 # ---------------------------------------------------------------------------
@@ -67,7 +68,7 @@ class NmapScanner(Scanner):
     def __init__(self) -> None:
         self.nm = nmap.PortScanner()
 
-    def scan_network(self, network: str = "192.168.1.0/24", arguments: str = "-sn -PR") -> Dict:
+    def scan_network(self, network: str = "192.168.1.0/24", arguments: str = "-PR -F") -> Dict:
         logger.info(f"Starting network scan on {network} with arguments '{arguments}'")
         try:
             self.nm.scan(hosts=network, arguments=arguments)
@@ -138,7 +139,7 @@ class PostgresDeviceManager:
         try:
             with self._get_connection() as conn, conn.cursor(cursor_factory=DictCursor) as cur:
                 cur.execute("""
-                    SELECT mac_address, ip_address, vendor, description, known, state, first_seen, last_seen
+                    SELECT mac_address, ip_address, vendor, description, known, state, first_seen, last_seen, open_ports
                     FROM devices;
                 """)
                 rows = cur.fetchall()
@@ -152,7 +153,8 @@ class PostgresDeviceManager:
                         known=row["known"],
                         state=row["state"],
                         first_seen=row["first_seen"],
-                        last_seen=row["last_seen"]
+                        last_seen=row["last_seen"],
+                        open_ports=row["open_ports"] if row["open_ports"] else []
                     )
                     all_devices[mac] = dev
         except Exception as e:
@@ -178,26 +180,31 @@ class PostgresDeviceManager:
                 """, (device_mac,))
                 existing = cur.fetchone()
 
+                # Serialize open_ports to JSON
+                open_ports_json = json.dumps(device.open_ports)
+
                 if existing:
                     # Update existing device without altering 'description', 'vendor', and known
                     cur.execute("""
                         UPDATE devices
                         SET ip_address = %s,
                             state = %s,
-                            last_seen = %s
+                            last_seen = %s,
+                            open_ports = %s
                         WHERE mac_address = %s;
                     """, (
                         device.ip_address,
                         device.state,
                         now,
+                        open_ports_json,  # Serialized JSON
                         device_mac
                     ))
                 else:
                     # Insert new device with 'description'
                     cur.execute("""
                         INSERT INTO devices 
-                            (mac_address, ip_address, vendor, description, known, state, first_seen, last_seen)
-                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s);
+                            (mac_address, ip_address, vendor, description, known, state, first_seen, last_seen, open_ports)
+                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s);
                     """, (
                         device_mac,
                         device.ip_address,
@@ -206,7 +213,8 @@ class PostgresDeviceManager:
                         device.known,
                         device.state,
                         now,
-                        now
+                        now,
+                        open_ports_json  # Serialized JSON
                     ))
         except Exception as e:
             logger.error(f"Error upserting device {device_mac} in Postgres: {e}")
@@ -278,12 +286,31 @@ class NetworkMonitorApp:
 
                 if mac == "UNKNOWN":
                     # Skip hosts without MAC addresses
-                    logger.warning(f"{nm_result[host]} did not have a MAC address")
+                    logger.warning(f"{host} did not have a MAC address")
                     continue
 
                 # Add to found MACs
                 logger.debug(f"Adding {mac} ({ip}) to found_macs")
                 found_macs.add(mac)
+
+                # Extract open ports with service names
+                open_ports = []
+
+                # Check for TCP ports
+                if 'tcp' in nm_result[host]:
+                    for port, port_data in nm_result[host]['tcp'].items():
+                        if port_data['state'] == 'open':
+                            service = port_data.get('name', 'unknown')
+                            open_ports.append({"port": port, "service": service})
+
+                # Check for UDP ports
+                if 'udp' in nm_result[host]:
+                    for port, port_data in nm_result[host]['udp'].items():
+                        if port_data['state'] == 'open':
+                            service = port_data.get('name', 'unknown')
+                            open_ports.append({"port": port, "service": service})
+
+                logger.debug(f"Open ports for {mac} ({ip}): {open_ports}")
 
                 if mac in all_devices:
                     logger.debug(f"Found existing host {mac} {ip}. Setting it to up.")
@@ -291,6 +318,7 @@ class NetworkMonitorApp:
                     dev = all_devices[mac]
                     dev.state = "up"
                     dev.ip_address = ip     # IP address could have changed; overwrite
+                    dev.open_ports = open_ports  # Update open_ports
                 else:
                     # Brand new device -> not known yet
                     logger.debug(f"Found unknown host {mac} {ip}. Setting it to up.")
@@ -304,7 +332,8 @@ class NetworkMonitorApp:
                         vendor=vendor,
                         description=None,  # No description for unknown devices
                         known=False,      # Mark as unknown until we classify it
-                        state="up"
+                        state="up",
+                        open_ports=open_ports    # Assign open_ports
                     )
 
                 # Upsert in Postgres
