@@ -40,7 +40,7 @@
           "showLineNumbers": false,
           "showMiniMap": false
         },
-        "content": "# Unknown Devices\nI have manually curated a list of MAC addresses from devices that I know. The following visualizations capture the ones that I don't. ",
+        "content": "# Network Devices\nI have manually curated a list of MAC addresses from devices that I know. The following visualizations capture both known and unknown devices.",
         "mode": "markdown"
       },
       "pluginVersion": "11.4.0",
@@ -113,7 +113,7 @@
         ]
       },
       "gridPos": {
-        "h": 10,
+        "h": 6,
         "w": 24,
         "x": 0,
         "y": 3
@@ -163,33 +163,8 @@
           "table": "devices"
         }
       ],
-      "title": "Panel Title",
+      "title": "Unknown Devices",
       "type": "table"
-    },
-    {
-      "fieldConfig": {
-        "defaults": {},
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 2,
-        "w": 24,
-        "x": 0,
-        "y": 13
-      },
-      "id": 4,
-      "options": {
-        "code": {
-          "language": "plaintext",
-          "showLineNumbers": false,
-          "showMiniMap": false
-        },
-        "content": "# Known Devices\n",
-        "mode": "markdown"
-      },
-      "pluginVersion": "11.4.0",
-      "title": "",
-      "type": "text"
     },
     {
       "datasource": {
@@ -277,10 +252,10 @@
         ]
       },
       "gridPos": {
-        "h": 19,
+        "h": 20,
         "w": 24,
         "x": 0,
-        "y": 15
+        "y": 9
       },
       "id": 3,
       "options": {
@@ -334,12 +309,12 @@
           }
         }
       ],
-      "title": "Panel Title",
+      "title": "Known Devices",
       "type": "table"
     }
   ],
   "preload": false,
-  "refresh": "auto",
+  "refresh": "5m",
   "schemaVersion": 40,
   "tags": [],
   "templating": {
@@ -353,6 +328,6 @@
   "timezone": "browser",
   "title": "Network Devices",
   "uid": "ae94zmakoxo1sc",
-  "version": 11,
+  "version": 13,
   "weekStart": ""
 }
