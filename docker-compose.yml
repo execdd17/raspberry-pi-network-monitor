@@ -92,7 +92,7 @@ services:
         condition: service_healthy
     environment:
       NETWORK_SCAN_INTERVAL: 300
-      KNOWN_DEVICES_FILE: known_devices.json
+      NETWORK_PORT_SCAN_INTERVAL: 14400 # 4 hours
       DB_HOST: 127.0.0.1  # I can't use 'postgres' because this container will use host networking mode
       DB_PORT: 5432
       DB_NAME: networkdb
