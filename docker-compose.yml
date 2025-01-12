@@ -91,7 +91,7 @@ services:
       postgres:
         condition: service_healthy
     environment:
-      NETWORK_SCAN_INTERVAL: 300
+      NETWORK_SCAN_INTERVAL: 60 # 1 minute
       NETWORK_PORT_SCAN_INTERVAL: 14400 # 4 hours
       DB_HOST: 127.0.0.1  # I can't use 'postgres' because this container will use host networking mode
       DB_PORT: 5432
