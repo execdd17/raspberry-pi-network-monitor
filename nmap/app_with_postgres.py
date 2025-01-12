@@ -184,19 +184,21 @@ class PostgresDeviceManager:
                 open_ports_json = json.dumps(device.open_ports)
 
                 if existing:
-                    # Update existing device without altering 'description', 'vendor', and known
+                    # Update existing device and set first_seen if it is NULL
                     cur.execute("""
                         UPDATE devices
                         SET ip_address = %s,
                             state = %s,
                             last_seen = %s,
-                            open_ports = %s
+                            open_ports = %s,
+                            first_seen = COALESCE(first_seen, %s)
                         WHERE mac_address = %s;
                     """, (
                         device.ip_address,
                         device.state,
                         now,
                         open_ports_json,  # Serialized JSON
+                        now,  # Set first_seen to now if it is NULL
                         device_mac
                     ))
                 else:
