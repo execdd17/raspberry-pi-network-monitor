@@ -68,7 +68,7 @@ class NmapScanner(Scanner):
     def __init__(self) -> None:
         self.nm = nmap.PortScanner()
 
-    def scan_network(self, network: str = "192.168.1.0/24", arguments: str = "-PR -F") -> Dict:
+    def scan_network(self, network: str = "192.168.1.0/24", arguments: str = "-PR") -> Dict:
         logger.info(f"Starting network scan on {network} with arguments '{arguments}'")
         try:
             self.nm.scan(hosts=network, arguments=arguments)
@@ -242,6 +242,12 @@ class NetworkMonitorApp:
         self.interval = int(os.environ.get("NETWORK_SCAN_INTERVAL", "300"))  # Default: 5 min
         self.vendor_db_path = os.environ.get("MAC_VENDOR_DB_PATH", "/app/mac_vendors.db")
 
+        # How often (in seconds) to run the fast port scan (-F).
+        self.portscan_interval = int(os.environ.get("NETWORK_PORT_SCAN_INTERVAL", "3600"))  # Default: 1 hour
+
+        # Track the last time we ran a full port scan
+        self.last_f_scan = None
+
         # Initialize services
         self.scanner = NmapScanner()
         self.vendor_db = MacLookupVendorDatabase(self.vendor_db_path)
@@ -263,8 +269,21 @@ class NetworkMonitorApp:
 
     def scan_and_process(self, network: str) -> None:
         """Perform a scan and update Postgres with known/unknown device info."""
+
         logger.info(f"Scanning network {network}...")
-        nm_result = self.scanner.scan_network(network)
+        now = datetime.now()
+
+        if self.last_f_scan is None or (now - self.last_f_scan).total_seconds() >= self.portscan_interval:
+            arguments = "-PR -F"
+            self.last_f_scan = now
+            logger.info("Including -F in this nmap scan (full port scan).")
+        else:
+            arguments = "-PR"
+            logger.info("Skipping -F for this nmap scan (port scan).")
+
+        # Run the scan
+        nm_result = self.scanner.scan_network(network, arguments=arguments)
+
         if not nm_result:
             logger.error("No scan results returned.")
             return
