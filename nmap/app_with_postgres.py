@@ -46,7 +46,7 @@ class Device:
 # ---------------------------------------------------------------------------
 class Scanner:
     """A base class for any network scanner implementation."""
-    def scan_network(self, network: str = "192.168.1.0/24", arguments: str = "-PR") -> Dict:
+    def scan_network(self, network: str = "192.168.1.0/24", arguments: str = "-sn -PR") -> Dict:
         raise NotImplementedError("scan_network must be overridden by subclasses.")
 
 # ---------------------------------------------------------------------------
@@ -68,7 +68,7 @@ class NmapScanner(Scanner):
     def __init__(self) -> None:
         self.nm = nmap.PortScanner()
 
-    def scan_network(self, network: str = "192.168.1.0/24", arguments: str = "-PR") -> Dict:
+    def scan_network(self, network: str = "192.168.1.0/24", arguments: str = "-sn -PR") -> Dict:
         logger.info(f"Starting network scan on {network} with arguments '{arguments}'")
         try:
             self.nm.scan(hosts=network, arguments=arguments)
@@ -191,7 +191,8 @@ class PostgresDeviceManager:
                             state = %s,
                             last_seen = %s,
                             open_ports = %s,
-                            first_seen = COALESCE(first_seen, %s)
+                            first_seen = COALESCE(first_seen, %s),
+                            times_seen  = times_seen + 1
                         WHERE mac_address = %s;
                     """, (
                         device.ip_address,
@@ -205,7 +206,7 @@ class PostgresDeviceManager:
                     # Insert new device with 'description'
                     cur.execute("""
                         INSERT INTO devices 
-                            (mac_address, ip_address, vendor, description, known, state, first_seen, last_seen, open_ports)
+                            (mac_address, ip_address, vendor, description, known, state, first_seen, last_seen, open_ports, times_seen)
                         VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s);
                     """, (
                         device_mac,
@@ -216,7 +217,8 @@ class PostgresDeviceManager:
                         device.state,
                         now,
                         now,
-                        open_ports_json  # Serialized JSON
+                        open_ports_json,  # Serialized JSON
+                        1   # this is the first time we've seen it
                     ))
         except Exception as e:
             logger.error(f"Error upserting device {device_mac} in Postgres: {e}")
@@ -278,7 +280,7 @@ class NetworkMonitorApp:
             self.last_f_scan = now
             logger.info("Including -F in this nmap scan (full port scan).")
         else:
-            arguments = "-PR"
+            arguments = "-sn -PR"
             logger.info("Skipping -F for this nmap scan (port scan).")
 
         # Run the scan
