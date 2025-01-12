@@ -141,7 +141,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT mac_address, ip_address, state, vendor, first_seen, last_seen,\r\nCASE \r\n        WHEN jsonb_array_length(open_ports) = 0 THEN NULL\r\n        ELSE open_ports\r\n    END AS open_ports\r\nFROM devices\r\nWHERE NOT known\r\nORDER BY ip_address;",
+          "rawSql": "SELECT mac_address, ip_address, state, vendor, first_seen, last_seen, times_seen,\r\nCASE \r\n        WHEN jsonb_array_length(open_ports) = 0 THEN NULL\r\n        ELSE open_ports\r\n    END AS open_ports\r\nFROM devices\r\nWHERE NOT known\r\nORDER BY ip_address;",
           "refId": "A",
           "sql": {
             "columns": [
@@ -249,6 +249,30 @@
                 }
               }
             ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "first_seen"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "dateTimeAsUSNoDateIfToday"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "last_seen"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "dateTimeFromNow"
+              }
+            ]
           }
         ]
       },
@@ -263,6 +287,7 @@
         "cellHeight": "sm",
         "footer": {
           "countRows": false,
+          "enablePagination": false,
           "fields": "",
           "reducer": [
             "sum"
@@ -288,7 +313,7 @@
           "format": "table",
           "hide": false,
           "rawQuery": true,
-          "rawSql": "SELECT \r\n    mac_address, \r\n    ip_address, \r\n    state, \r\n    vendor, \r\n    description, \r\n    first_seen, \r\n    last_seen, \r\n    CASE \r\n        WHEN jsonb_array_length(open_ports) = 0 THEN NULL\r\n        ELSE open_ports\r\n    END AS open_ports\r\nFROM \r\n    devices\r\nWHERE \r\n    known \r\nORDER BY \r\n    ip_address;",
+          "rawSql": "SELECT \r\n    mac_address, \r\n    ip_address, \r\n    state, \r\n    vendor, \r\n    description, \r\n    first_seen, \r\n    last_seen,\r\n    times_seen, \r\n    CASE \r\n        WHEN jsonb_array_length(open_ports) = 0 THEN NULL\r\n        ELSE open_ports\r\n    END AS open_ports\r\nFROM \r\n    devices\r\nWHERE \r\n    known \r\nORDER BY \r\n    ip_address;",
           "refId": "A",
           "sql": {
             "columns": [
@@ -314,7 +339,7 @@
     }
   ],
   "preload": false,
-  "refresh": "5m",
+  "refresh": "auto",
   "schemaVersion": 40,
   "tags": [],
   "templating": {
@@ -328,6 +353,6 @@
   "timezone": "browser",
   "title": "Network Devices",
   "uid": "ae94zmakoxo1sc",
-  "version": 5,
+  "version": 11,
   "weekStart": ""
 }
