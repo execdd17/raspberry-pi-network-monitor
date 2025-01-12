@@ -191,7 +191,8 @@ class PostgresDeviceManager:
                             state = %s,
                             last_seen = %s,
                             open_ports = %s,
-                            first_seen = COALESCE(first_seen, %s)
+                            first_seen = COALESCE(first_seen, %s),
+                            times_seen  = times_seen + 1
                         WHERE mac_address = %s;
                     """, (
                         device.ip_address,
@@ -205,7 +206,7 @@ class PostgresDeviceManager:
                     # Insert new device with 'description'
                     cur.execute("""
                         INSERT INTO devices 
-                            (mac_address, ip_address, vendor, description, known, state, first_seen, last_seen, open_ports)
+                            (mac_address, ip_address, vendor, description, known, state, first_seen, last_seen, open_ports, times_seen)
                         VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s);
                     """, (
                         device_mac,
@@ -216,7 +217,8 @@ class PostgresDeviceManager:
                         device.state,
                         now,
                         now,
-                        open_ports_json  # Serialized JSON
+                        open_ports_json,  # Serialized JSON
+                        1   # this is the first time we've seen it
                     ))
         except Exception as e:
             logger.error(f"Error upserting device {device_mac} in Postgres: {e}")

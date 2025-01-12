@@ -8,6 +8,7 @@ CREATE TABLE IF NOT EXISTS devices (
     state        VARCHAR(10) DEFAULT 'down',
     first_seen   TIMESTAMP,
     last_seen    TIMESTAMP,
+    times_seen   INTEGER      DEFAULT 0,
     open_ports JSONB DEFAULT '[]'::JSONB
 );
 
