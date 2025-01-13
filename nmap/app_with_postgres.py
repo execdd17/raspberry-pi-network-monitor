@@ -207,7 +207,7 @@ class PostgresDeviceManager:
                     cur.execute("""
                         INSERT INTO devices 
                             (mac_address, ip_address, vendor, description, known, state, first_seen, last_seen, open_ports, times_seen)
-                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s);
+                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
                     """, (
                         device_mac,
                         device.ip_address,
