@@ -336,12 +336,19 @@ class NetworkMonitorApp:
                 logger.debug(f"Open ports for {mac} ({ip}): {open_ports}")
 
                 if mac in all_devices:
-                    logger.debug(f"Found existing host {mac} {ip}. Setting it to up.")
                     # Update existing device
+                    logger.debug(f"Found existing host {mac} {ip}. Setting it to up.")
+
+                    if len(open_ports) == 0:
+                        # Keep old ports from the DB device object
+                        dev.open_ports = all_devices[mac].open_ports
+                    else:
+                        # Use the newly scanned ports
+                        dev.open_ports = open_ports
+
                     dev = all_devices[mac]
                     dev.state = "up"
                     dev.ip_address = ip     # IP address could have changed; overwrite
-                    dev.open_ports = open_ports  # Update open_ports
                 else:
                     # Brand new device -> not known yet
                     logger.debug(f"Found unknown host {mac} {ip}. Setting it to up.")
