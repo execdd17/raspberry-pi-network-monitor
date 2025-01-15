@@ -102,7 +102,7 @@ services:
     privileged: true
 
   postgres:
-    image: postgres:15
+    image: postgres:15.10
     container_name: postgres
     restart: unless-stopped
     networks:
