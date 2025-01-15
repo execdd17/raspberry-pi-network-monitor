@@ -9,3 +9,21 @@ DO UPDATE
         vendor      = EXCLUDED.vendor,
         description = EXCLUDED.description,
         known       = EXCLUDED.known;
+
+INSERT INTO devices (mac_address, ip_address, vendor, description, known)
+VALUES ('46:56:EA:28:D1:22', '192.168.1.115', 'Apple', 'Cadence IPad', true)
+ON CONFLICT (mac_address)
+DO UPDATE
+    SET ip_address  = EXCLUDED.ip_address,
+        vendor      = EXCLUDED.vendor,
+        description = EXCLUDED.description,
+        known       = EXCLUDED.known;
+
+INSERT INTO devices (mac_address, ip_address, vendor, description, known)
+VALUES ('A2:18:A4:AA:CE:1E', '192.168.1.113', 'Apple', 'Natalie IPad', true)
+ON CONFLICT (mac_address)
+DO UPDATE
+    SET ip_address  = EXCLUDED.ip_address,
+        vendor      = EXCLUDED.vendor,
+        description = EXCLUDED.description,
+        known       = EXCLUDED.known;

@@ -20,11 +20,19 @@ docker compose down   # stop containers (you can just control-c if still attache
 ```
 
 #### How do I 'promote' unknown hosts to known hosts?
-1. Add the new `INSERT` statements into the `init.sql` file. Then delete the postgres volume. Then restart 
-2. Add some UPSERT commands to the `post_init_changes.sql` file and then run:  
-```
-docker exec -it psql -U admin -d networkdb -f docker-entrypoint-initdb.d/post_init_changes.sql
-```
+
+There are a few ways. You can either:
+1. Add the new `INSERT` statements into the `init.sql` file. 
+2. `docker compose down --remove-orphans`
+3. Delete the postgres volume with `docker volume rm temp-monitor_pgdata
+4. Then bring the docker images back up with `docker compose up -d` 
+
+OR
+
+1. Add some UPSERT commands to the `post_init_changes.sql` file
+2. `docker compose down`
+3. `docker compose up -d`
+2. `docker exec -it psql -U admin -d networkdb -f docker-entrypoint-initdb.d/post_init_changes.sql`
 
 ### Included Grafana Dashboards
 <img src="img/speed_and_temp_dashboard.png" width="500px">
