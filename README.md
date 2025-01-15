@@ -30,9 +30,9 @@ There are a few ways. You can either:
 OR
 
 1. Add some UPSERT commands to the `post_init_changes.sql` file
-2. `docker compose down`
-3. `docker compose up -d`
-2. `docker exec -it psql -U admin -d networkdb -f docker-entrypoint-initdb.d/post_init_changes.sql`
+2. `docker compose down postgres`
+3. `docker compose up postgres -d`
+2. `docker exec -it postgres psql -U admin -d networkdb -f docker-entrypoint-initdb.d/post_init_changes.sql`
 
 ### Included Grafana Dashboards
 <img src="img/speed_and_temp_dashboard.png" width="500px">
