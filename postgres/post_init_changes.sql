@@ -27,3 +27,12 @@ DO UPDATE
         vendor      = EXCLUDED.vendor,
         description = EXCLUDED.description,
         known       = EXCLUDED.known;
+
+INSERT INTO devices (mac_address, ip_address, vendor, description, known)
+VALUES ('B0:AC:82:C6:1E:69', '192.168.1.119', 'GMKtec', 'Nucbox G3 PLUS', true)
+ON CONFLICT (mac_address)
+DO UPDATE
+    SET ip_address  = EXCLUDED.ip_address,
+        vendor      = EXCLUDED.vendor,
+        description = EXCLUDED.description,
+        known       = EXCLUDED.known;
