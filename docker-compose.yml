@@ -78,7 +78,7 @@ services:
       INFLUXDB_TOKEN: WkoTClqWxUZ_zCoUn3RZsMNVehVG8MeYFy_R9yaBUEbwmxgAxvJVdIkMdHJhVmXqoJ6jJxWAJXoA3sPWgMPxKQ==
       INFLUXDB_BUCKET: temp-monitor-bucket
       INFLUXDB_ORG: temp-monitor-org
-      SPEEDTEST_INTERVAL: 600
+      SPEEDTEST_INTERVAL: 3600
       INFLUXDB_URL: http://influxdb:8086
     restart: on-failure
 
