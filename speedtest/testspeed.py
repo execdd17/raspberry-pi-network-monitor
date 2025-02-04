@@ -21,7 +21,7 @@ interval = int(os.environ.get("SPEEDTEST_INTERVAL", "600"))  # Default to 300 se
 client = influxdb_client.InfluxDBClient(url=url, token=token, org=org)
 write_api = client.write_api(write_options=SYNCHRONOUS)
 
-def run_speedtest():
+def get_metrics():
     try:
         st = speedtest.Speedtest()
         st.get_best_server()
@@ -29,6 +29,15 @@ def run_speedtest():
         upload = st.upload() / 1_000_000      # Convert to Mbps
         ping = st.results.ping
 
+        logger.info(f"Download: {download:.2f} Mbps, Upload: {upload:.2f} Mbps, Ping: {ping} ms")
+        return (download, upload, ping)
+    except Exception as e:
+        logger.error(f"Error running speedtest: {e}")
+
+def run_speedtest():
+    try:
+        download, upload, ping = get_metrics()
+        
         # Create data point
         point = Point("speedtest") \
             .tag("source", "internet") \
@@ -36,13 +45,11 @@ def run_speedtest():
             .field("upload", upload) \
             .field("ping", ping)
 
-        logger.info(f"Download: {download:.2f} Mbps, Upload: {upload:.2f} Mbps, Ping: {ping} ms")
-
         # Write to InfluxDB
         write_api.write(bucket=bucket, org=org, record=point)
 
     except Exception as e:
-        logger.error(f"Error running speedtest: {e}")
+        logger.error(f"Error writing to InfluxDB: {e}")
 
 def main():
     while True:
