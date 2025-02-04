@@ -36,3 +36,12 @@ DO UPDATE
         vendor      = EXCLUDED.vendor,
         description = EXCLUDED.description,
         known       = EXCLUDED.known;
+
+INSERT INTO devices (mac_address, ip_address, vendor, description, known)
+VALUES ('E8:FF:1E:D9:88:7B', '192.168.1.1', 'Beelink', 'EQ14 Mini PC', true)
+ON CONFLICT (mac_address)
+DO UPDATE
+    SET ip_address  = EXCLUDED.ip_address,
+        vendor      = EXCLUDED.vendor,
+        description = EXCLUDED.description,
+        known       = EXCLUDED.known;
