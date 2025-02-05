@@ -33,11 +33,18 @@ def get_metrics():
         return (download, upload, ping)
     except Exception as e:
         logger.error(f"Error running speedtest: {e}")
+        return None
 
 def run_speedtest():
+    metrics_tuple = get_metrics()
+
+    if not metrics_tuple:
+        logger.warning("Skipping InfluxDB write due to lack of metrics")
+        return
+    
+    download, upload, ping = metrics_tuple
+
     try:
-        download, upload, ping = get_metrics()
-        
         # Create data point
         point = Point("speedtest") \
             .tag("source", "internet") \
