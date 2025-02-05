@@ -45,3 +45,12 @@ DO UPDATE
         vendor      = EXCLUDED.vendor,
         description = EXCLUDED.description,
         known       = EXCLUDED.known;
+
+INSERT INTO devices (mac_address, ip_address, vendor, description, known)
+VALUES ('68:DB:F5:4A:E9:7A', '192.168.1.144', 'Amazon', 'Natalie Echo Show', true)
+ON CONFLICT (mac_address)
+DO UPDATE
+    SET ip_address  = EXCLUDED.ip_address,
+        vendor      = EXCLUDED.vendor,
+        description = EXCLUDED.description,
+        known       = EXCLUDED.known;
